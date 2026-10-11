@@ -1,0 +1,16 @@
+{
+  "name": "Munkanapló",
+  "short_name": "Munkanapló",
+  "description": "Munkanapok és elszámolás követése",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a7c5a",
+  "theme_color": "#0a7c5a",
+  "lang": "hu",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

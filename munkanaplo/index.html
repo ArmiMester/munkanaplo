@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Munkanapló">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>Munkanapló</title>
+<style>
+:root{--bg:#f2f2f7;--card:#fff;--text:#1c1c1e;--sub:#6e6e73;--line:#e5e5ea;--accent:#0a7c5a;--accent-text:#fff;--danger:#d70015;--seg:#e3e3e8}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--sub:#98989f;--line:#2c2c2e;--accent:#30d19b;--accent-text:#04251a;--danger:#ff453a;--seg:#2c2c2e}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+body{padding:env(safe-area-inset-top) 16px calc(96px + env(safe-area-inset-bottom));max-width:560px;margin:0 auto}
+h1{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:18px 0 14px}
+button,input,textarea{font:inherit;color:inherit}
+.hero{background:var(--accent);color:var(--accent-text);border-radius:26px;padding:22px 22px 24px}
+.hero small{display:block;opacity:.8;font-size:14px;margin-bottom:4px}
+.hero .sum{font-size:clamp(34px,11vw,48px);font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.05}
+.hero .meta{margin-top:10px;font-size:14px;opacity:.85}
+.seg{display:flex;background:var(--seg);border-radius:12px;padding:3px;margin:16px 0}
+.seg button{flex:1;border:0;background:none;padding:9px 4px;border-radius:9px;font-size:14px;font-weight:600;color:var(--sub)}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.item{background:var(--card);border-radius:18px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.date{font-size:13px;color:var(--sub)}
+.title{font-weight:600;font-size:17px;margin-top:2px}
+.amt{font-weight:700;font-size:17px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.detail{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--sub);white-space:pre-wrap}
+.item.open .detail{display:block}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;font-weight:700;font-size:17px;background:var(--accent);color:var(--accent-text)}
+.btn.ghost{background:var(--seg);color:var(--text)}
+.btn.danger{background:none;color:var(--danger)}
+.btn:disabled{opacity:.5}
+.small{padding:9px 14px;font-size:15px;width:auto;display:inline-block;margin-top:10px}
+.empty{text-align:center;color:var(--sub);padding:40px 10px}
+.fab{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));width:62px;height:62px;border-radius:31px;border:0;background:var(--accent);color:var(--accent-text);font-size:34px;line-height:1;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.sheet-bg.show{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92%;overflow:auto;border-radius:26px 26px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sheet h2{margin:0 0 14px;font-size:22px}
+label{display:block;font-size:13px;color:var(--sub);margin:12px 4px 5px}
+input,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;font-size:17px}
+textarea{min-height:90px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.err{color:var(--danger);font-size:14px;margin-top:10px;min-height:18px}
+.login{margin-top:12vh}
+.foot{text-align:center;margin-top:24px}
+.foot button{background:none;border:0;color:var(--sub);font-size:14px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- BEJELENTKEZÉS -->
+<section id="login" class="login" hidden>
+  <h1>Munkanapló</h1>
+  <label for="em">E-mail</label><input id="em" type="email" autocomplete="username" inputmode="email">
+  <label for="pw">Jelszó</label><input id="pw" type="password" autocomplete="current-password">
+  <div class="err" id="loginErr"></div>
+  <button class="btn" id="loginBtn">Belépés</button>
+</section>
+
+<!-- FŐOLDAL -->
+<main id="app" hidden>
+  <h1>Elszámolás</h1>
+  <div class="hero">
+    <small id="heroLabel">Összesen elszámolandó</small>
+    <div class="sum" id="sum">0 Ft</div>
+    <div class="meta" id="meta"></div>
+  </div>
+  <div class="seg" id="seg">
+    <button data-f="all" class="on">Összesen</button>
+    <button data-f="week">Ezen a héten</button>
+    <button data-f="month">Ebben a hónapban</button>
+  </div>
+  <div id="list"></div>
+  <div class="foot"><button id="logout">Kijelentkezés</button></div>
+  <button class="fab" id="fab" aria-label="Új munkanap" hidden>+</button>
+</main>
+
+<!-- ŰRLAP -->
+<div class="sheet-bg" id="bg">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <h2 id="formTitle">Új munkanap</h2>
+    <label for="fDate">Dátum</label><input id="fDate" type="date">
+    <label for="fTitle">Munka megnevezése</label><input id="fTitle" placeholder="pl. Gipszkartonozás – nappali">
+    <label for="fAmt">Megkeresett összeg (Ft)</label><input id="fAmt" type="number" inputmode="numeric" min="0" step="1" placeholder="0">
+    <label for="fNote">Megjegyzés</label><textarea id="fNote" placeholder="Mit csináltam, túlóra, felhasznált anyag…"></textarea>
+    <div class="err" id="formErr"></div>
+    <button class="btn" id="save">Mentés</button>
+    <button class="btn danger" id="del" hidden>Törlés</button>
+    <button class="btn ghost" id="cancel" style="margin-top:8px">Mégse</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ====== BEÁLLÍTÁS – ezt a 3 sort írd át ====== */
+const SUPABASE_URL = 'https://ssmiskdcmblwkzmgnsbx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_a92e_zDTWMs_dGAcEEFlmw_WDca8ofI';
+const EDITOR_EMAIL = 'armi.mile@gmail.com';   // csak ez a fiók írhat/törölhet
+/* ============================================ */
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+const huf = n => new Intl.NumberFormat('hu-HU', {style:'currency', currency:'HUF', maximumFractionDigits:0}).format(n);
+const iso = d => new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = s => new Date(s + 'T12:00:00').toLocaleDateString('hu-HU', {year:'numeric', month:'long', day:'numeric', weekday:'short'});
+
+let days = [], filter = 'all', canEdit = false, editId = null, channel = null;
+
+/* ---------- Adatok ---------- */
+async function load() {
+  const {data, error} = await db.from('workdays').select('*').order('work_date', {ascending:false}).order('created_at', {ascending:false});
+  if (!error) { days = data; render(); }
+}
+
+function range() {
+  const n = new Date(), wd = (n.getDay() + 6) % 7;
+  const ws = new Date(n); ws.setDate(n.getDate() - wd);
+  if (filter === 'week') return [iso(ws), '9999'];
+  if (filter === 'month') return [iso(new Date(n.getFullYear(), n.getMonth(), 1)), '9999'];
+  return ['0000', '9999'];
+}
+
+function render() {
+  const [from, to] = range();
+  const rows = days.filter(d => d.work_date >= from && d.work_date <= to);
+  const total = rows.reduce((s, d) => s + d.amount, 0);
+  $('sum').textContent = huf(total);
+  $('meta').textContent = rows.length + ' munkanap';
+  $('heroLabel').textContent = {all:'Összesen elszámolandó', week:'Ezen a héten', month:'Ebben a hónapban'}[filter];
+  $('list').innerHTML = rows.length ? rows.map(d => `
+    <div class="item" data-id="${d.id}">
+      <div class="row"><div><div class="date">${fmtDate(d.work_date)}</div><div class="title">${esc(d.title)}</div></div><div class="amt">${huf(d.amount)}</div></div>
+      <div class="detail">${d.note ? esc(d.note) : 'Nincs megjegyzés.'}${canEdit ? `<br><button class="btn ghost small" data-edit="${d.id}">Módosítás</button>` : ''}</div>
+    </div>`).join('')
+    : '<div class="empty">Ebben az időszakban még nincs rögzített munkanap.</div>';
+}
+
+/* ---------- Űrlap ---------- */
+function openForm(id) {
+  editId = id || null;
+  const d = days.find(x => x.id === id);
+  $('formTitle').textContent = d ? 'Munkanap módosítása' : 'Új munkanap';
+  $('fDate').value = d ? d.work_date : iso(new Date());
+  $('fTitle').value = d ? d.title : '';
+  $('fAmt').value = d ? d.amount : '';
+  $('fNote').value = d ? (d.note || '') : '';
+  $('del').hidden = !d; $('formErr').textContent = '';
+  $('bg').classList.add('show');
+}
+const closeForm = () => $('bg').classList.remove('show');
+
+async function save() {
+  const row = {work_date:$('fDate').value, title:$('fTitle').value.trim(), amount:Math.round(Number($('fAmt').value)), note:$('fNote').value.trim() || null};
+  if (!row.work_date || !row.title || !(row.amount >= 0)) { $('formErr').textContent = 'Add meg a dátumot, a megnevezést és az összeget.'; return; }
+  $('save').disabled = true;
+  const q = editId ? db.from('workdays').update(row).eq('id', editId) : db.from('workdays').insert(row);
+  const {error} = await q;
+  $('save').disabled = false;
+  if (error) { $('formErr').textContent = 'Nem sikerült menteni: ' + error.message; return; }
+  closeForm(); load();
+}
+
+async function remove() {
+  if (!confirm('Biztosan törlöd ezt a munkanapot?')) return;
+  const {error} = await db.from('workdays').delete().eq('id', editId);
+  if (error) { $('formErr').textContent = 'Nem sikerült törölni: ' + error.message; return; }
+  closeForm(); load();
+}
+
+/* ---------- Belépés és indulás ---------- */
+async function start(session) {
+  if (!session) { $('app').hidden = true; $('login').hidden = false; return; }
+  canEdit = session.user.email.toLowerCase() === EDITOR_EMAIL.toLowerCase();
+  $('login').hidden = true; $('app').hidden = false; $('fab').hidden = !canEdit;
+  await load();
+  if (channel) db.removeChannel(channel);
+  channel = db.channel('workdays-live').on('postgres_changes', {event:'*', schema:'public', table:'workdays'}, load).subscribe();
+}
+
+$('loginBtn').onclick = async () => {
+  $('loginErr').textContent = '';
+  const {error} = await db.auth.signInWithPassword({email:$('em').value.trim(), password:$('pw').value});
+  if (error) $('loginErr').textContent = 'Hibás e-mail vagy jelszó.';
+};
+$('logout').onclick = () => db.auth.signOut();
+$('fab').onclick = () => openForm();
+$('save').onclick = save; $('del').onclick = remove; $('cancel').onclick = closeForm;
+$('bg').onclick = e => { if (e.target.id === 'bg') closeForm(); };
+$('seg').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  filter = b.dataset.f;
+  [...$('seg').children].forEach(x => x.classList.toggle('on', x === b));
+  render();
+};
+$('list').onclick = e => {
+  const ed = e.target.closest('[data-edit]');
+  if (ed) return openForm(ed.dataset.edit);
+  const it = e.target.closest('.item'); if (it) it.classList.toggle('open');
+};
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('app').hidden) load(); });
+
+db.auth.onAuthStateChange((_ev, session) => start(session));
+db.auth.getSession().then(({data}) => start(data.session));
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
